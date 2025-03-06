@@ -28,7 +28,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 
-#from robotnik_common.launch import RewrittenYaml
+# from robotnik_common.launch import RewrittenYaml
 
 # Environment variables
 #  USE_SIM_TIME: Use simulation (Gazebo) clock if true
@@ -36,121 +36,161 @@ from ament_index_python.packages import get_package_share_directory
 #  ROBOT_ID: Frame id of the robot. (e.g. vectornav_link).
 #  WORLD: World to load.
 
-def read_params(ld : launch.LaunchDescription):
-  use_sim_time = launch.substitutions.LaunchConfiguration('use_sim_time')
-  robot_id = launch.substitutions.LaunchConfiguration('robot_id')
-  robot_xacro = launch.substitutions.LaunchConfiguration('robot_xacro')
-  namespace = launch.substitutions.LaunchConfiguration('namespace')
-  pos_x = launch.substitutions.LaunchConfiguration('pos_x')
-  pos_y = launch.substitutions.LaunchConfiguration('pos_y')
-  controllers_file = launch.substitutions.LaunchConfiguration('controllers_file')
 
-  ld.add_action(launch.actions.DeclareLaunchArgument(
-    name='use_sim_time',
-    description='Use simulation (Gazebo) clock if true',
-    choices=['true', 'false'],
-    default_value='true',
-  ))
+def read_params(ld: launch.LaunchDescription):
+    use_sim_time = launch.substitutions.LaunchConfiguration("use_sim_time")
+    robot_id = launch.substitutions.LaunchConfiguration("robot_id")
+    robot_xacro = launch.substitutions.LaunchConfiguration("robot_xacro")
+    namespace = launch.substitutions.LaunchConfiguration("namespace")
+    pos_x = launch.substitutions.LaunchConfiguration("pos_x")
+    pos_y = launch.substitutions.LaunchConfiguration("pos_y")
+    controllers_file = launch.substitutions.LaunchConfiguration("controllers_file")
 
-  ld.add_action(launch.actions.DeclareLaunchArgument(
-    name='robot_id',
-    description='Id of the robot',
-    default_value='robot',
-  ))
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
+            name="use_sim_time",
+            description="Use simulation (Gazebo) clock if true",
+            choices=["true", "false"],
+            default_value="true",
+        )
+    )
 
-  ld.add_action(launch.actions.DeclareLaunchArgument(
-    name='namespace',
-    description='Namespace of the node stack',
-    default_value=robot_id,
-  ))
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
+            name="robot_id",
+            description="Id of the robot",
+            default_value="robot",
+        )
+    )
 
-  ld.add_action(launch.actions.DeclareLaunchArgument(
-    name='robot_xacro',
-    description='Robot xacro file path for the robot model',
-    default_value=os.path.join(get_package_share_directory('summit_xl_description'), 'robots', 'summit_xls_icclab.urdf.xacro'),
-  ))
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
+            name="namespace",
+            description="Namespace of the node stack",
+            default_value=robot_id,
+        )
+    )
 
-  ld.add_action(launch.actions.DeclareLaunchArgument(
-    name='pos_x',
-    description='X position of the robot',
-    default_value='0.0',
-  ))
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
+            name="robot_xacro",
+            description="Robot xacro file path for the robot model",
+            default_value=os.path.join(
+                get_package_share_directory("summit_xl_description"),
+                "robots",
+                "summit_xl_std.urdf.xacro",
+            ),
+        )
+    )
 
-  ld.add_action(launch.actions.DeclareLaunchArgument(
-    name='pos_y',
-    description='Y position of the robot',
-    default_value='0.0',
-  ))
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
+            name="pos_x",
+            description="X position of the robot",
+            default_value="0.0",
+        )
+    )
 
-  ld.add_action(launch.actions.DeclareLaunchArgument(
-        name='controllers_file',
-        description='ROS 2 controller file.',
-        default_value=[get_package_share_directory('summit_xl_gazebo'), '/config/controller.yml']
-  ))
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
+            name="pos_y",
+            description="Y position of the robot",
+            default_value="0.0",
+        )
+    )
 
-  ret = {
-    'use_sim_time': use_sim_time,
-    'namespace': namespace,
-    'robot_id': robot_id,
-    'robot_xacro' : robot_xacro,
-    'pos_x': pos_x,
-    'pos_y': pos_y,
-    'controllers_file': controllers_file
-  }
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
+            name="controllers_file",
+            description="ROS 2 controller file.",
+            default_value=[
+                get_package_share_directory("summit_xl_gazebo"),
+                "/config/controller.yml",
+            ],
+        )
+    )
 
-  return ret
+    ret = {
+        "use_sim_time": use_sim_time,
+        "namespace": namespace,
+        "robot_id": robot_id,
+        "robot_xacro": robot_xacro,
+        "pos_x": pos_x,
+        "pos_y": pos_y,
+        "controllers_file": controllers_file,
+    }
+
+    return ret
 
 
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
+
 def generate_launch_description():
-  ld = launch.LaunchDescription()
-  summit_xl_gazebo = get_package_share_directory('summit_xl_gazebo')
+    ld = launch.LaunchDescription()
+    summit_xl_gazebo = get_package_share_directory("summit_xl_gazebo")
 
-  params = read_params(ld)
+    params = read_params(ld)
 
-  namespace = launch_ros.actions.PushRosNamespace(namespace=params['namespace'])
-  robot_state_publisher = launch.actions.IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-      os.path.join(summit_xl_gazebo, 'launch', 'description.launch.py')
-    ),
-    launch_arguments={
-      'use_sim_time': params['use_sim_time'],
-      'robot_id': params['robot_id'],
-      'robot_xacro': params['robot_xacro'],
-      'controllers_file': params['controllers_file']
-    }.items(),
-  )
+    namespace = launch_ros.actions.PushRosNamespace(namespace=params["namespace"])
+    robot_state_publisher = launch.actions.IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(summit_xl_gazebo, "launch", "description.launch.py")
+        ),
+        launch_arguments={
+            "use_sim_time": params["use_sim_time"],
+            "robot_id": params["robot_id"],
+            "robot_xacro": params["robot_xacro"],
+            "controllers_file": params["controllers_file"],
+        }.items(),
+    )
 
-  spawner = launch_ros.actions.Node(
-    package='gazebo_ros',
-    executable='spawn_entity.py',
-    arguments=[
-      '-entity', params['robot_id'],
-      '-topic', 'robot_description',
-      '-x', params['pos_x'],
-      '-y', params['pos_y'],
-      '-z', '0.10',
-    ],
-    output='screen',
-  )
-  base_controller = launch_ros.actions.Node(
-    package="controller_manager",
-    executable="spawner",
-    arguments=["robotnik_base_control", "--controller-manager", ["/", params['namespace'], "/controller_manager"]],
-  )
-  joint_broadcaster = launch_ros.actions.Node(
-    package="controller_manager",
-    executable="spawner",
-    arguments=["joint_state_broadcaster", "--controller-manager", ["/", params['namespace'], "/controller_manager"]],
-  )
+    spawner = launch_ros.actions.Node(
+        package="gazebo_ros",
+        executable="spawn_entity.py",
+        arguments=[
+            "-entity",
+            params["robot_id"],
+            "-topic",
+            "robot_description",
+            "-x",
+            params["pos_x"],
+            "-y",
+            params["pos_y"],
+            "-z",
+            "0.10",
+        ],
+        output="screen",
+    )
+    base_controller = launch_ros.actions.Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "robotnik_base_control",
+            "--controller-manager",
+            ["/", params["namespace"], "/controller_manager"],
+        ],
+    )
+    joint_broadcaster = launch_ros.actions.Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "joint_state_broadcaster",
+            "--controller-manager",
+            ["/", params["namespace"], "/controller_manager"],
+        ],
+    )
 
-  ld.add_action(launch.actions.GroupAction(actions=[
-    namespace,
-    robot_state_publisher,
-    spawner,
-    base_controller,
-    joint_broadcaster,
-  ]))
+    ld.add_action(
+        launch.actions.GroupAction(
+            actions=[
+                namespace,
+                robot_state_publisher,
+                spawner,
+                base_controller,
+                joint_broadcaster,
+            ]
+        )
+    )
 
-  return ld
+    return ld

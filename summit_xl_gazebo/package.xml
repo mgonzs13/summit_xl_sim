@@ -37,6 +37,12 @@
   <exec_depend>diff_drive_controller</exec_depend>
   <exec_depend>rviz</exec_depend>
 
+  <depend>gazebo_ros2_control</depend>
+  <depend>ros2_controllers</depend>
+  <depend>ros2_control</depend>
+  <depend>velodyne</depend>
+  <depend>velodyne_gazebo_plugins</depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>

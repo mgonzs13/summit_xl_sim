@@ -28,7 +28,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 
-#from robotnik_common.launch import RewrittenYaml
+# from robotnik_common.launch import RewrittenYaml
 
 # Environment variables
 #  USE_SIM_TIME: Use simulation (Gazebo) clock if true
@@ -36,154 +36,195 @@ from ament_index_python.packages import get_package_share_directory
 #  ROBOT_ID: Frame id of the robot. (e.g. vectornav_link).
 #  WORLD: World to load.
 
-def read_params(ld : launch.LaunchDescription):
-  environment = launch.substitutions.LaunchConfiguration('environment')
-  use_sim_time = launch.substitutions.LaunchConfiguration('use_sim_time')
-  robot_id = launch.substitutions.LaunchConfiguration('robot_id')
-  namespace = launch.substitutions.LaunchConfiguration('namespace')
-  world_name = launch.substitutions.LaunchConfiguration('world_name')
-  world = launch.substitutions.LaunchConfiguration('world')
-  robot_xacro = launch.substitutions.LaunchConfiguration('robot_xacro')
-  controllers_file = launch.substitutions.LaunchConfiguration('controllers_file')
 
-  ld.add_action(launch.actions.DeclareLaunchArgument(
-    name='environment',
-    description='Read parameters from environment variables',
-    choices=['true', 'false'],
-    default_value='true',
-  ))
+def read_params(ld: launch.LaunchDescription):
+    environment = launch.substitutions.LaunchConfiguration("environment")
+    use_sim_time = launch.substitutions.LaunchConfiguration("use_sim_time")
+    robot_id = launch.substitutions.LaunchConfiguration("robot_id")
+    namespace = launch.substitutions.LaunchConfiguration("namespace")
+    world_name = launch.substitutions.LaunchConfiguration("world_name")
+    world = launch.substitutions.LaunchConfiguration("world")
+    robot_xacro = launch.substitutions.LaunchConfiguration("robot_xacro")
+    controllers_file = launch.substitutions.LaunchConfiguration("controllers_file")
 
-  ld.add_action(launch.actions.DeclareLaunchArgument(
-    name='use_sim_time',
-    description='Use simulation (Gazebo) clock if true',
-    choices=['true', 'false'],
-    default_value='true',
-  ))
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
+            name="environment",
+            description="Read parameters from environment variables",
+            choices=["true", "false"],
+            default_value="true",
+        )
+    )
 
-  ld.add_action(launch.actions.DeclareLaunchArgument(
-    name='robot_id',
-    description='Id of the robot',
-    default_value='summit',
-  ))
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
+            name="use_sim_time",
+            description="Use simulation (Gazebo) clock if true",
+            choices=["true", "false"],
+            default_value="true",
+        )
+    )
 
-  ld.add_action(launch.actions.DeclareLaunchArgument(
-    name='namespace',
-    description='Namespace of the node stack',
-    default_value=robot_id,
-  ))
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
+            name="robot_id",
+            description="Id of the robot",
+            default_value="robot",
+        )
+    )
 
-  ld.add_action(launch.actions.DeclareLaunchArgument(
-    name='world_name',
-    description='Name of the world to load',
-    default_value='demo',
-  ))
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
+            name="namespace",
+            description="Namespace of the node stack",
+            default_value=robot_id,
+        )
+    )
 
-  ld.add_action(launch.actions.DeclareLaunchArgument(
-    name='world',
-    description='World to load',
-    default_value=[launch_ros.substitutions.FindPackageShare('summit_xl_gazebo'), '/worlds/', world_name, '.world']
-  ))
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
+            name="world_name",
+            description="Name of the world to load",
+            default_value="demo",
+        )
+    )
 
-  ld.add_action(launch.actions.DeclareLaunchArgument(
-        name='robot_xacro',
-        description='Robot xacro file path for the robot model',
-        default_value=os.path.join(get_package_share_directory('summit_xl_description'), 'robots', 'summit_xls.urdf.xacro')
-  ))
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
+            name="world",
+            description="World to load",
+            default_value=[
+                launch_ros.substitutions.FindPackageShare("summit_xl_gazebo"),
+                "/worlds/",
+                world_name,
+                ".world",
+            ],
+        )
+    )
 
-  ld.add_action(launch.actions.DeclareLaunchArgument(
-        name='controllers_file',
-        description='ROS 2 controller file.',
-        default_value=[get_package_share_directory('summit_xl_gazebo'), '/config/controller.yml']
-  ))
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
+            name="robot_xacro",
+            description="Robot xacro file path for the robot model",
+            default_value=os.path.join(
+                get_package_share_directory("summit_xl_description"),
+                "robots",
+                "summit_xl_std.urdf.xacro",
+            ),
+        )
+    )
 
-  ret = {}
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
+            name="controllers_file",
+            description="ROS 2 controller file.",
+            default_value=[
+                get_package_share_directory("summit_xl_gazebo"),
+                "/config/controller.yml",
+            ],
+        )
+    )
 
-  if environment == 'false':
-    ret = {
-      'use_sim_time': use_sim_time,
-      'namespace': namespace,
-      'robot_id': robot_id,
-      'world': world,
-      'robot_xacro': robot_xacro,
-      'controllers_file': controllers_file
-    }
-  else:
-    if 'USE_SIM_TIME' in os.environ:
-      ret['use_sim_time'] = os.environ['USE_SIM_TIME']
+    ret = {}
+
+    if environment == "false":
+        ret = {
+            "use_sim_time": use_sim_time,
+            "namespace": namespace,
+            "robot_id": robot_id,
+            "world": world,
+            "robot_xacro": robot_xacro,
+            "controllers_file": controllers_file,
+        }
     else:
-      ret['use_sim_time'] = use_sim_time
-    if 'NAMESPACE' in os.environ:
-      ret['namespace'] = os.environ['NAMESPACE']
-    elif 'ROBOT_ID' in os.environ:
-      ret['namespace'] = os.environ['ROBOT_ID']
-    else:
-      ret['namespace'] = namespace
-    if 'ROBOT_ID' in os.environ:
-      ret['robot_id'] = os.environ['ROBOT_ID']
-    else:
-      ret['robot_id'] = robot_id
-    if 'ROBOT_XACRO' in os.environ:
-      ret['robot_xacro'] = os.environ['ROBOT_XACRO']
-    else:
-      ret['robot_xacro'] = robot_xacro
-    if 'CONTROLLERS_FILE' in os.environ:
-      ret['controllers_file'] = os.environ['CONTROLLERS_FILE']
-    else:
-      ret['controllers_file'] = controllers_file
-    if 'WORLD' in os.environ:
-      ret['world'] = os.environ['WORLD']
-    elif 'WORLD_NAME' in os.environ:
-      ret['world'] = [launch_ros.substitutions.FindPackageShare('summit_xl_gazebo'), '/worlds/', os.environ['WORLD_NAME'], '.world']
-    else:
-      ret['world'] = world
+        if "USE_SIM_TIME" in os.environ:
+            ret["use_sim_time"] = os.environ["USE_SIM_TIME"]
+        else:
+            ret["use_sim_time"] = use_sim_time
+        if "NAMESPACE" in os.environ:
+            ret["namespace"] = os.environ["NAMESPACE"]
+        elif "ROBOT_ID" in os.environ:
+            ret["namespace"] = os.environ["ROBOT_ID"]
+        else:
+            ret["namespace"] = namespace
+        if "ROBOT_ID" in os.environ:
+            ret["robot_id"] = os.environ["ROBOT_ID"]
+        else:
+            ret["robot_id"] = robot_id
+        if "ROBOT_XACRO" in os.environ:
+            ret["robot_xacro"] = os.environ["ROBOT_XACRO"]
+        else:
+            ret["robot_xacro"] = robot_xacro
+        if "CONTROLLERS_FILE" in os.environ:
+            ret["controllers_file"] = os.environ["CONTROLLERS_FILE"]
+        else:
+            ret["controllers_file"] = controllers_file
+        if "WORLD" in os.environ:
+            ret["world"] = os.environ["WORLD"]
+        elif "WORLD_NAME" in os.environ:
+            ret["world"] = [
+                launch_ros.substitutions.FindPackageShare("summit_xl_gazebo"),
+                "/worlds/",
+                os.environ["WORLD_NAME"],
+                ".world",
+            ]
+        else:
+            ret["world"] = world
 
-  return ret
+    return ret
 
 
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
+
 def generate_launch_description():
-  ld = launch.LaunchDescription()
-  summit_xl_gazebo = get_package_share_directory('summit_xl_gazebo')
-  gazebo_ros = get_package_share_directory('gazebo_ros')
-  params = read_params(ld)
+    ld = launch.LaunchDescription()
+    summit_xl_gazebo = get_package_share_directory("summit_xl_gazebo")
+    gazebo_ros = get_package_share_directory("gazebo_ros")
+    params = read_params(ld)
 
-  ld.add_action(launch.actions.IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-      os.path.join(gazebo_ros, 'launch', 'gzserver.launch.py')
-    ),
-    launch_arguments={
-      'verbose': 'True',
-      'world': params['world'],
-      'paused': 'false',
-      'init': 'true',
-      'factory': 'true',
-      'force_system': 'true',
-      'params_file': os.path.join(summit_xl_gazebo, 'config','gazebo.yml'),
-    }.items(),
-  ))
+    ld.add_action(
+        launch.actions.IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(gazebo_ros, "launch", "gzserver.launch.py")
+            ),
+            launch_arguments={
+                "verbose": "True",
+                "world": params["world"],
+                "paused": "false",
+                "init": "true",
+                "factory": "true",
+                "force_system": "true",
+                "params_file": os.path.join(summit_xl_gazebo, "config", "gazebo.yml"),
+            }.items(),
+        )
+    )
 
-  ld.add_action(launch.actions.IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-      os.path.join(gazebo_ros, 'launch', 'gzclient.launch.py')
-    ),
-    launch_arguments={
-      'verbose': 'false',
-      }.items(),
-  ))
+    ld.add_action(
+        launch.actions.IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(gazebo_ros, "launch", "gzclient.launch.py")
+            ),
+            launch_arguments={
+                "verbose": "false",
+            }.items(),
+        )
+    )
 
-  ld.add_action(launch.actions.IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(
-      os.path.join(summit_xl_gazebo, 'launch', 'spawn.launch.py')
-    ),
-    launch_arguments={
-      'use_sim_time': params['use_sim_time'],
-      'robot_id': params['robot_id'],
-      'namespace': params['namespace'],
-      'robot_xacro': params['robot_xacro'],
-      'pos_x': '1.0',
-      'pos_y': '-2.0',
-      }.items(),
-  ))
+    ld.add_action(
+        launch.actions.IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(summit_xl_gazebo, "launch", "spawn.launch.py")
+            ),
+            launch_arguments={
+                "use_sim_time": params["use_sim_time"],
+                "robot_id": params["robot_id"],
+                "namespace": params["namespace"],
+                "robot_xacro": params["robot_xacro"],
+                "pos_x": "1.0",
+                "pos_y": "-2.0",
+            }.items(),
+        )
+    )
 
-  return ld
+    return ld
