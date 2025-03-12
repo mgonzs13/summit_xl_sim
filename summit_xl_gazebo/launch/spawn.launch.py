@@ -44,6 +44,7 @@ def read_params(ld: launch.LaunchDescription):
     namespace = launch.substitutions.LaunchConfiguration("namespace")
     pos_x = launch.substitutions.LaunchConfiguration("pos_x")
     pos_y = launch.substitutions.LaunchConfiguration("pos_y")
+    pos_z = launch.substitutions.LaunchConfiguration("pos_z")
     controllers_file = launch.substitutions.LaunchConfiguration("controllers_file")
 
     ld.add_action(
@@ -101,6 +102,14 @@ def read_params(ld: launch.LaunchDescription):
 
     ld.add_action(
         launch.actions.DeclareLaunchArgument(
+            name="pos_z",
+            description="Z position of the robot",
+            default_value="0.0",
+        )
+    )
+
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
             name="controllers_file",
             description="ROS 2 controller file.",
             default_value=[
@@ -117,6 +126,7 @@ def read_params(ld: launch.LaunchDescription):
         "robot_xacro": robot_xacro,
         "pos_x": pos_x,
         "pos_y": pos_y,
+        "pos_z": pos_z,
         "controllers_file": controllers_file,
     }
 
@@ -158,7 +168,7 @@ def generate_launch_description():
             "-y",
             params["pos_y"],
             "-z",
-            "0.10",
+            params["pos_z"],
         ],
         output="screen",
     )
