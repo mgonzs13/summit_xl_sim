@@ -26,7 +26,7 @@
 import os
 import re
 import launch
-from launch.actions import LogInfo, OpaqueFunction
+from launch.actions import OpaqueFunction
 import launch_ros
 from ament_index_python.packages import get_package_share_directory
 
