@@ -88,16 +88,7 @@ def launch_setup(context, *args, **kwargs):
         ],
     )
 
-    return [
-        robot_state_publisher,
-        LogInfo(
-            msg=[
-                "description.launch.py",
-                " robot_description_param: \n",
-                robot_description_content,
-            ]
-        ),
-    ]
+    return [robot_state_publisher]
 
 
 def generate_launch_description():
@@ -140,7 +131,7 @@ def generate_launch_description():
             default_value=os.path.join(
                 get_package_share_directory("summit_xl_description"),
                 "robots",
-                "summit_xls_icclab.urdf.xacro",
+                "summit_xl_std.urdf.xacro",
             ),
         )
     )
