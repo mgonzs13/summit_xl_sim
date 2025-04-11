@@ -45,6 +45,7 @@ def read_params(ld: launch.LaunchDescription):
     pos_x = launch.substitutions.LaunchConfiguration("pos_x")
     pos_y = launch.substitutions.LaunchConfiguration("pos_y")
     pos_z = launch.substitutions.LaunchConfiguration("pos_z")
+    yaw = launch.substitutions.LaunchConfiguration("yaw")
     controllers_file = launch.substitutions.LaunchConfiguration("controllers_file")
 
     ld.add_action(
@@ -110,6 +111,14 @@ def read_params(ld: launch.LaunchDescription):
 
     ld.add_action(
         launch.actions.DeclareLaunchArgument(
+            name="yaw",
+            description="Yaw position of the robot",
+            default_value="0.0",
+        )
+    )
+
+    ld.add_action(
+        launch.actions.DeclareLaunchArgument(
             name="controllers_file",
             description="ROS 2 controller file.",
             default_value=[
@@ -127,6 +136,7 @@ def read_params(ld: launch.LaunchDescription):
         "pos_x": pos_x,
         "pos_y": pos_y,
         "pos_z": pos_z,
+        "yaw": yaw,
         "controllers_file": controllers_file,
     }
 
@@ -169,6 +179,8 @@ def generate_launch_description():
             params["pos_y"],
             "-z",
             params["pos_z"],
+            "-Y",
+            params["yaw"],
         ],
         output="screen",
     )
